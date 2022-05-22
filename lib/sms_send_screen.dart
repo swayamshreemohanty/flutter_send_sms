@@ -20,16 +20,24 @@ class _SMSsendScreenState extends State<SMSsendScreen> {
   void showRequestStatus(SendStatus status) {
     switch (status) {
       case SendStatus.SENT:
-        ShowSnackBar.showSnackBar(context, ShowSnackBar.sent,
-            backGroundColor: Colors.red);
+        ShowSnackBar.showSnackBar(context, ShowSnackBar.sent);
         return;
       case SendStatus.DELIVERED:
         ShowSnackBar.showSnackBar(context, ShowSnackBar.delivered);
         return;
       default:
-        ShowSnackBar.showSnackBar(context, ShowSnackBar.failed);
+        ShowSnackBar.showSnackBar(
+          context,
+          ShowSnackBar.failed,
+          backGroundColor: Colors.red,
+        );
         return;
     }
+  }
+
+  void clearTextField() {
+    _phoneNumberController.clear();
+    _customSMSController.clear();
   }
 
   Future<void> sendDirectSmS() async {
@@ -52,6 +60,7 @@ class _SMSsendScreenState extends State<SMSsendScreen> {
               showRequestStatus(status);
             },
           );
+          clearTextField();
         } else {
           // ignore: use_build_context_synchronously
           ShowSnackBar.showSnackBar(context, 'SMS permission is not allowed');
@@ -80,6 +89,7 @@ class _SMSsendScreenState extends State<SMSsendScreen> {
           to: _phoneNumberController.text.trim(),
           message: _customSMSController.text.trim(),
         );
+        clearTextField();
       } else {
         // ignore: use_build_context_synchronously
         ShowSnackBar.showSnackBar(context, 'SMS permission is not allowed');
@@ -107,7 +117,7 @@ class _SMSsendScreenState extends State<SMSsendScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
+        child: ListView(
           children: [
             Form(
               key: _formKey,
@@ -116,10 +126,12 @@ class _SMSsendScreenState extends State<SMSsendScreen> {
                   TextFormField(
                     controller: _phoneNumberController,
                     autofillHints: const [AutofillHints.telephoneNumber],
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.phone,
                     validator: (value) {
                       if (value!.isEmpty) {
                         return "Field can't be empty";
+                      } else if (!value.contains('+')) {
+                        return "Must include country code.";
                       }
                       return null;
                     },
@@ -144,7 +156,12 @@ class _SMSsendScreenState extends State<SMSsendScreen> {
                     keyboardType: TextInputType.text,
                     maxLines: 4,
                     maxLength: 160,
-                    onSaved: (String? phoneNumber) {},
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Can't send empty message.";
+                      }
+                      return null;
+                    },
                     decoration: InputDecoration(
                       hintText: 'Type your message...',
                       border: OutlineInputBorder(
@@ -166,12 +183,16 @@ class _SMSsendScreenState extends State<SMSsendScreen> {
             Row(
               children: [
                 SendSMSButton(
-                  onPressed: sendDirectSmS,
-                  buttonName: 'Send Directly',
+                  onPressed: () async {
+                    await sendDirectSmS();
+                  },
+                  buttonName: 'Send',
                 ),
                 const SizedBox(width: 20),
                 SendSMSButton(
-                  onPressed: sendViaSmSApp,
+                  onPressed: () async {
+                    await sendViaSmSApp();
+                  },
                   buttonName: 'Via SMS APP',
                 )
               ],
