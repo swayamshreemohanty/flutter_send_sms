@@ -6,7 +6,7 @@ A Flutter project to send SMS both from the application directly and from the an
 
 Here I'm using "telephony" plugin for this send SMS operation. I'm using the ***telephony: ^0.1.4*** version.
 This version was the stable one till the v1.0.0 version of this project (as on 29.05.2022).
-## Social Media Links:
+## Social Media Links
 
 - [LinkedIn](https://www.linkedin.com/in/swayamshree-mohanty-a241b31a0/)
 - [Buy me coffee](https://www.buymeacoffee.com/swayamshree)
